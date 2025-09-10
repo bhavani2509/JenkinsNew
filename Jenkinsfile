@@ -1,18 +1,22 @@
 pipeline {
-  agent any  // your Windows node
-  stages {
-    stage('Test in Windows container') {
-      steps {
-        script {
-          // Use ONE of these, matching your Windows version:
-          // def img = docker.image('node:16-windowsservercore-ltsc2022')
-          def img = docker.image('node:20-alpine')
-          img.pull()
-          img.inside {
-            bat 'node --version'
-          }
+    agent any
+
+    stages {
+        stage('Check Docker') {
+            steps {
+                bat 'docker version'
+            }
         }
-      }
+
+        stage('Run Node Container') {
+            steps {
+                // Pull and run a quick Node container to print versions
+                bat '''
+                    docker pull node:20-alpine
+                    docker run --rm node:20-alpine node -v
+                    docker run --rm node:20-alpine npm -v
+                '''
+            }
+        }
     }
-  }
 }
